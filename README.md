@@ -1,6 +1,26 @@
 # Notes
 - https://towardsthecloud.com/amazon-ec2-requested-more-vcpu-capacity
 
+## Auto login Parsec
+- https://simplay.freshdesk.com/support/solutions/articles/42000019844-how-to-set-up-auto-login-for-parsec
+
+```
+# Set the username and password for the account you want to auto-login to
+$username = "your_username"
+$password = "your_password"
+
+# Set the path to the Parsec executable
+$parsecPath = "C:\path\to\parsec.exe"
+
+# Create a scheduled task to run Parsec at startup and log in to the specified user account
+$action = New-ScheduledTaskAction -Execute $parsecPath
+$trigger = New-ScheduledTaskTrigger -AtStartup
+$settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+$principal = New-ScheduledTaskPrincipal -LogonType S4U -UserId $username -RunLevel Highest
+$credential = New-Object System.Management.Automation.PSCredential ($username, (ConvertTo-SecureString $password -AsPlainText -Force))
+Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Parsec Auto-Login" -Settings $settings -Principal $principal -Credential $credential
+```
+
 # aws-cloud-gaming
 
 Provision an AWS EC2 instance with a gpu to play games in the cloud. Uses terraform to create the required infrastructure and a user data script to install the applications on the instance. Once configured, games can be streamed from the instance with low-latency using [Parsec](https://parsecgaming.com/).
