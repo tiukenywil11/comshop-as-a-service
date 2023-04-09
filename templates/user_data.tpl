@@ -126,6 +126,23 @@ function install-graphic-driver {
     }
 }
 
+function auto-login-parsec {
+    # Set the username and password for the account you want to auto-login to
+    $username = "your_username"
+    $password = "your_password"
+
+    # Set the path to the Parsec executable
+    $parsecPath = "C:\path\to\parsec.exe"
+
+    # Create a scheduled task to run Parsec at startup and log in to the specified user account
+    $action = New-ScheduledTaskAction -Execute $parsecPath
+    $trigger = New-ScheduledTaskTrigger -AtStartup
+    $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries
+    $principal = New-ScheduledTaskPrincipal -LogonType S4U -UserId $username -RunLevel Highest
+    $credential = New-Object System.Management.Automation.PSCredential ($username, (ConvertTo-SecureString $password -AsPlainText -Force))
+    Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "Parsec Auto-Login" -Settings $settings -Principal $principal -Credential $credential
+}
+
 install-chocolatey
 Install-PackageProvider -Name NuGet -Force
 choco install awstools.powershell
